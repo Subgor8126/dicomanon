@@ -1,0 +1,1 @@
+from .auth_service import get_user_id_from_request_token
