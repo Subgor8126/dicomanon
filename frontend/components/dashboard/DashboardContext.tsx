@@ -10,6 +10,7 @@ interface User {
   display_name?: string;
   credits: number;
   role: string;
+  onboarding_complete?: boolean;
 }
 
 interface Connection {
@@ -80,7 +81,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
 
     try {
       const token = auth.user.access_token;
-
+      console.log(token)
       // Parallel fetching
       const [userRes, connectionsRes, jobsRes] = await Promise.all([
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me/`, {
@@ -99,7 +100,9 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       if (!jobsRes.ok) throw new Error('Failed to fetch jobs');
 
       const userData = await userRes.json();
+      console.log('User fetched:', userData); // Debugging log
       const connectionsData = await connectionsRes.json();
+      console.log('Connections fetched:', connectionsData); // Debugging log
       const jobsData = await jobsRes.json();
 
       setUser(userData);

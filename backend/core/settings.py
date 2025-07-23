@@ -18,6 +18,8 @@ import os
 COGNITO_REGION = os.getenv("COGNITO_REGION")
 COGNITO_USER_POOL_ID = os.getenv("COGNITO_USER_POOL_ID")
 COGNITO_APP_CLIENT_ID = os.getenv("COGNITO_APP_CLIENT_ID")
+AWS_ACCOUNT_ID = os.getenv("AWS_ACCOUNT_ID")
+SQS_QUEUE_NAME = os.getenv("SQS_QUEUE_NAME")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

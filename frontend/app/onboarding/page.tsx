@@ -41,7 +41,7 @@ function OnboardingForm() {
     const fetchUser = async () => {
       try {
         const token = user?.access_token
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/me/`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me/`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -79,7 +79,6 @@ function OnboardingForm() {
         body: JSON.stringify({
           display_name: displayName,
           email: user?.profile?.email || '',
-          credits: 30,
           user_id: user?.profile?.sub || '',
           role: role,
           onboarding_complete: true

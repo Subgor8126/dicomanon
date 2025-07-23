@@ -14,18 +14,12 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [TokenRequired]
 
     def list(self, request, *args, **kwargs):
-        """
-        Disable listing all users.
-        """
         return Response(
             {"detail": "GET /users/ is disabled. Use /users/me/."},
             status=status.HTTP_405_METHOD_NOT_ALLOWED
         )
 
     def retrieve(self, request, *args, **kwargs):
-        """
-        Disable retrieving other users by ID.
-        """
         return Response(
             {"detail": "GET /users/{id}/ is disabled. Use /users/me/."},
             status=status.HTTP_405_METHOD_NOT_ALLOWED
@@ -33,9 +27,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def me(self, request):
-        """
-        Secure self-data retrieval.
-        """
         user_id = request.token_user_id
         try:
             user_obj = User.objects.get(user_id=user_id)
@@ -49,9 +40,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['patch'])
     def update_me(self, request):
-        """
-        Secure self-update.
-        """
         user_id = request.token_user_id
         try:
             user_obj = User.objects.get(user_id=user_id)
@@ -68,9 +56,6 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def create(self, request, *args, **kwargs):
-        """
-        Idempotent create: get_or_create user based on token user_id.
-        """
         token_user_id = request.token_user_id
         data = request.data.copy()
 
@@ -78,6 +63,13 @@ class UserViewSet(viewsets.ModelViewSet):
             user_id=token_user_id,
             defaults=data
         )
+
+        if not created:
+            # Update existing user with new data
+            for field, value in data.items():
+                if hasattr(user, field):
+                    setattr(user, field, value)
+            user.save()
 
         serializer = self.get_serializer(user)
         return Response(

@@ -1,5 +1,6 @@
 from rest_framework import viewsets
-from api.models import Connection
+from rest_framework import serializers
+from api.models import Connection, User
 from api.serializers import ConnectionSerializer
 from api.permission import TokenRequired
 
@@ -8,10 +9,18 @@ class ConnectionViewSet(viewsets.ModelViewSet):
     permission_classes = [TokenRequired]
 
     def get_queryset(self):
-        user = self.request.user
-        if user.is_superuser:
-            return Connection.objects.all()
-        return Connection.objects.filter(user=user)
+        """
+        Only return connections owned by the authenticated user.
+        """
+        return Connection.objects.filter(user__user_id=self.request.token_user_id)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        """
+        Auto-assign the authenticated user to the new connection.
+        """
+        try:
+            user = User.objects.get(user_id=self.request.token_user_id)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found.")
+
+        serializer.save(user=user)
