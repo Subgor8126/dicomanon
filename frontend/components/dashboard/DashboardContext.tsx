@@ -8,7 +8,6 @@ interface User {
   user_id: string;
   email: string;
   display_name?: string;
-  credits: number;
   role: string;
   onboarding_complete?: boolean;
 }
@@ -24,7 +23,6 @@ interface Connection {
 interface Job {
   id: string;
   status: string;
-  credits_charged: number;
   created_at: string;
   updated_at: string;
   started_at?: string; // Optional, may not be set if job hasn't started
@@ -32,10 +30,9 @@ interface Job {
   connection: string;
   ocr_requested: boolean;
   tag_removal_requested: boolean;
+  ai_inference_requested: boolean;
   s3_cleaned_result_key: string;
   s3_audit_log_key: string;
-  source_artifact_id: string;
-  destination_artifact_id: string;
   // Add other fields you need
 }
 
@@ -94,6 +91,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
+
+      console.log(connectionsRes)
 
       if (!userRes.ok) throw new Error('Failed to fetch user');
       if (!connectionsRes.ok) throw new Error('Failed to fetch connections');

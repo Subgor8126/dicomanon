@@ -9,6 +9,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../../theme';
 import { DashboardProvider } from '../../components/dashboard/DashboardContext';
+import { useAuth } from 'react-oidc-context';
 
 const drawerWidth = 220;
 
@@ -22,6 +23,15 @@ const navItems = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   // Placeholder user info
   const user = { name: 'Dr. Jane Doe', role: 'Radiologist' };
+  const auth = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await auth.signoutRedirect();
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -32,7 +42,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Toolbar>
               <Avatar sx={{ bgcolor: theme.palette.primary.main, mr: 2 }}>{user.name[0]}</Avatar>
               <Typography variant="h6" sx={{ flexGrow: 1 }}>{user.name} <Typography variant="caption" sx={{ ml: 1, color: 'info.main' }}>{user.role}</Typography></Typography>
-              <Button color="info" startIcon={<LogoutIcon />}>Logout</Button>
+              <Button color="info" startIcon={<LogoutIcon />} onClick={handleLogout}>Logout</Button>
             </Toolbar>
           </AppBar>
           <Drawer
@@ -47,7 +57,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Box sx={{ overflow: 'auto', mt: 2 }}>
               <List>
                 {navItems.map((item) => (
-                  <ListItem button key={item.text} component="a" href={item.href} sx={{ mb: 1, borderRadius: 2, mx: 1, '&:hover': { background: 'rgba(102,0,51,0.15)' } }}>
+                  <ListItem key={item.text} component="a" href={item.href} sx={{ mb: 1, borderRadius: 2, mx: 1, '&:hover': { background: 'rgba(102,0,51,0.15)' } }}>
                     <ListItemIcon sx={{ color: 'primary.main' }}>{item.icon}</ListItemIcon>
                     <ListItemText primary={item.text} />
                   </ListItem>

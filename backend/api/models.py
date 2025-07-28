@@ -10,12 +10,13 @@ class User(models.Model):
         ("OTHER", "Other")
     ]
 
-    user_id = models.CharField(primary_key=True, max_length=128, unique=True)
+    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     display_name = models.CharField(max_length=255, blank=True, null=True)
     role = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default="OTHER")
     
     onboarding_complete = models.BooleanField(default=False)
+    dummy = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -38,6 +39,10 @@ class Job(models.Model):
 
     source_prefix = models.CharField(max_length=512, blank=True, null=True)
     destination_prefix = models.CharField(max_length=512, blank=True, null=True)
+
+    ocr_requested = models.BooleanField(default=False)
+    tag_removal_requested = models.BooleanField(default=False)
+    ai_inference_requested = models.BooleanField(default=False)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
 

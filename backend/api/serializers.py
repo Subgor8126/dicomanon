@@ -30,19 +30,18 @@ class ConnectionSerializer(serializers.ModelSerializer):
 class JobSerializer(serializers.ModelSerializer):
     user_email = serializers.CharField(source='user.email', read_only=True)
     connection_name = serializers.CharField(source='connection.name', read_only=True)
-
     is_failed = serializers.ReadOnlyField()
     can_retry = serializers.ReadOnlyField()
     requires_resubmission = serializers.ReadOnlyField()
     duration = serializers.ReadOnlyField()
-
     progress_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = Job
         fields = [
             'id', 'user', 'user_email', 'connection', 'connection_name',
-            'source_prefix', 'destination_prefix', 'status',
+            'source_prefix', 'destination_prefix', 'ocr_requested',
+            'tag_removal_requested', 'ai_inference_requested', 'status',
             's3_cleaned_result_key', 's3_audit_log_key',
             'created_at', 'updated_at', 'started_at', 'completed_at',
             'error_message', 'retry_count',

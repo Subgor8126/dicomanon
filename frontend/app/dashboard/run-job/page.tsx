@@ -4,10 +4,11 @@ import { Box, Card, CardContent, Typography, Button, Stack, TextField, MenuItem,
 import { useDashboard } from '../../../components/dashboard/DashboardContext';
 import WorkIcon from '@mui/icons-material/Work';
 import { v4 as uuidv4 } from 'uuid';
+import { useAuth } from 'react-oidc-context';
 
 export default function RunJobPage() {
   const { connections, refreshAll } = useDashboard();
-
+  const auth = useAuth();
   const [form, setForm] = useState({
     connection: '',
     userBucket: '',
@@ -33,6 +34,7 @@ export default function RunJobPage() {
       setError('Please fill in all required fields.');
       return;
     }
+    console.log('Submitting job with form data:', form);
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -42,21 +44,23 @@ export default function RunJobPage() {
       const jobId = uuidv4();
       const payload = {
         jobId,
-        userBucket: form.userBucket,
-        uploadPrefix: form.uploadPrefix,
-        resultPrefix: form.resultPrefix,
-        userRoleArn: selectedConnection.aws_role_arn,
-        ocrRequested: form.ocrRequested,
-        ocrRenderBoxes: form.ocrRenderBoxes,
-        tagRemovalRequested: form.tagRemovalRequested,
-        aiInferenceRequested: form.aiInferenceRequested,
-        sagemakerEndpoint: null // backend will fill this
+        user_bucket: form.userBucket,
+        upload_prefix: form.uploadPrefix,
+        result_prefix: form.resultPrefix,
+        user_role_arn: selectedConnection.aws_role_arn,
+        ocr_requested: form.ocrRequested,
+        ocr_render_boxes: form.ocrRenderBoxes,
+        tag_removal_requested: form.tagRemovalRequested,
+        ai_inference_requested: form.aiInferenceRequested,
+        connection: form.connection,
+        sagemaker_endpoint: null // backend will fill this
       };
+      console.log('Payload to send:', payload);
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${window.localStorage.getItem('access_token') || ''}`,
+          Authorization: `Bearer ${auth.user?.access_token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -91,7 +95,7 @@ export default function RunJobPage() {
               disabled={connections.length === 0}
             >
               {connections.map(conn => (
-                <MenuItem key={conn.id} value={conn.id}>{conn.name} ({conn.region})</MenuItem>
+                <MenuItem key={conn.id} value={conn.id}> {conn.name} ({conn.region})</MenuItem>
               ))}
             </TextField>
             <TextField
