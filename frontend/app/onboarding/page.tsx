@@ -11,10 +11,8 @@ import {
   Button,
   CircularProgress,
   Alert,
-  Paper
 } from '@mui/material';
 
-import { useRouter } from 'next/navigation';
 
 const ROLES = [
   "RADIOLOGIST",
@@ -28,7 +26,6 @@ function OnboardingForm() {
   const auth = useAuth();
   const { user, signinRedirect } = auth;
   // const { getAccessTokenSilently, loginWithRedirect, user } = useAuth0();
-  const router = useRouter();
 
   const [displayName, setDisplayName] = useState('');
   const [role, setRole] = useState('OTHER');

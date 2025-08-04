@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { Box, CssBaseline, Drawer, AppBar, Toolbar, Typography, IconButton, List, ListItem, ListItemIcon, ListItemText, Avatar, Button } from '@mui/material';
+import { Box, CssBaseline, Drawer, AppBar, Toolbar, List, ListItem, ListItemIcon, ListItemText, Button } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import LinkIcon from '@mui/icons-material/Link';
 import WorkIcon from '@mui/icons-material/Work';
@@ -21,8 +21,6 @@ const navItems = [
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  // Placeholder user info
-  const user = { name: 'Dr. Jane Doe', role: 'Radiologist' };
   const auth = useAuth();
 
   const handleLogout = async () => {
@@ -40,8 +38,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <CssBaseline />
           <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, background: '#181818', boxShadow: 'none', borderBottom: '1px solid #222' }}>
             <Toolbar>
-              <Avatar sx={{ bgcolor: theme.palette.primary.main, mr: 2 }}>{user.name[0]}</Avatar>
-              <Typography variant="h6" sx={{ flexGrow: 1 }}>{user.name} <Typography variant="caption" sx={{ ml: 1, color: 'info.main' }}>{user.role}</Typography></Typography>
               <Button color="info" startIcon={<LogoutIcon />} onClick={handleLogout}>Logout</Button>
             </Toolbar>
           </AppBar>

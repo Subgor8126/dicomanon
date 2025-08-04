@@ -18,12 +18,13 @@ export default function RunJobPage() {
     ocrRenderBoxes: false,
     tagRemovalRequested: false,
     aiInferenceRequested: false,
+    model_endpoint: 'yolov5-inference-endpoint-v4',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: string | boolean) => {
     setForm(f => ({ ...f, [field]: value }));
     setError(null);
     setSuccess(null);
@@ -53,7 +54,7 @@ export default function RunJobPage() {
         tag_removal_requested: form.tagRemovalRequested,
         ai_inference_requested: form.aiInferenceRequested,
         connection: form.connection,
-        sagemaker_endpoint: null // backend will fill this
+        model_endpoint: form.model_endpoint
       };
       console.log('Payload to send:', payload);
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs/`, {
@@ -69,10 +70,10 @@ export default function RunJobPage() {
         throw new Error(data.detail || 'Failed to launch job');
       }
       setSuccess('Job launched successfully!');
-      setForm({ connection: '', userBucket: '', uploadPrefix: '', resultPrefix: '', ocrRequested: false, ocrRenderBoxes: false, tagRemovalRequested: false, aiInferenceRequested: false });
+      setForm({ connection: '', userBucket: '', uploadPrefix: '', resultPrefix: '', ocrRequested: false, ocrRenderBoxes: false, tagRemovalRequested: false, aiInferenceRequested: false, model_endpoint: 'yolov5-inference-endpoint-v4' });
       await refreshAll();
-    } catch (err: any) {
-      setError(err.message || 'Failed to launch job');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to launch job');
     } finally {
       setLoading(false);
     }
@@ -135,6 +136,19 @@ export default function RunJobPage() {
               control={<Checkbox checked={form.aiInferenceRequested} onChange={e => handleChange('aiInferenceRequested', e.target.checked)} />}
               label="Run AI inference?"
             />
+            <TextField
+              select
+              label="AI Model"
+              name="model_endpoint"
+              value={form.model_endpoint || 'yolov5-inference-endpoint-v4'}
+              onChange={e => handleChange('model_endpoint', e.target.value)}
+              fullWidth
+              disabled={!form.aiInferenceRequested}
+            >
+              <MenuItem value="yolov5-inference-endpoint-v4">Pneumonia Detection (YOLOv5)</MenuItem>
+              <MenuItem value="custom-model-endpoint">Custom Model</MenuItem>
+              <MenuItem value="abnormality-detection-v3">ResNet Abnormality Detection (Fracture, Lesions, Hardware Devices)</MenuItem>
+            </TextField>
             {error && <Alert severity="error">{error}</Alert>}
             {success && <Alert severity="success">{success}</Alert>}
             <Button

@@ -62,8 +62,8 @@ export default function ConnectionsPage() {
       }
       handleClose();
       await refreshAll();
-    } catch (err: any) {
-      setActionError(err.message || 'Failed to add connection');
+    } catch (err: unknown) {
+      setActionError(err instanceof Error ? err.message : 'Failed to add connection');
     } finally {
       setActionLoading(false);
     }
@@ -85,8 +85,8 @@ export default function ConnectionsPage() {
         throw new Error(data.detail || 'Failed to delete connection');
       }
       await refreshAll();
-    } catch (err: any) {
-      setActionError(err.message || 'Failed to delete connection');
+    } catch (err: unknown) {
+      setActionError(err instanceof Error ? err.message : 'Failed to delete connection');
     } finally {
       setDeleteId(null);
     }
@@ -104,15 +104,15 @@ export default function ConnectionsPage() {
       <Grid container spacing={3}>
         {loading ? (
           Array.from({ length: 2 }).map((_, i) => (
-            <Grid item xs={12} md={6} key={i}>
+            <Grid size={{ xs: 12, md: 6 }} key={i}>
               <Skeleton variant="rectangular" height={120} />
             </Grid>
           ))
         ) : connections.length === 0 ? (
-          <Grid item xs={12}><Typography>No connections found.</Typography></Grid>
+          <Grid size={12}><Typography>No connections found.</Typography></Grid>
         ) : (
           connections.map((conn) => (
-            <Grid item xs={12} md={6} key={conn.id}>
+            <Grid size={{ xs: 12, md: 6 }} key={conn.id}>
               <Card>
                 <CardContent>
                   <Stack direction="row" alignItems="center" spacing={2} mb={1}>

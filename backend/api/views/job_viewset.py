@@ -71,7 +71,7 @@ class JobViewSet(viewsets.ModelViewSet):
             "ocrRenderBoxes": bool(data.get("ocr_render_boxes", False)),  # Always true for now
             "tagRemovalRequested": bool(data.get("tag_removal_requested", False)),
             "aiInferenceRequested": bool(data.get("ai_inference_requested", False)),
-            "sagemakerEndpoint": "yolov5-inference-endpoint-v4",
+            "sagemakerEndpoint": data.get('model_endpoint', 'yolov5-inference-endpoint-v4'),
         }
 
         print(f"Payload for SQS: {payload}")

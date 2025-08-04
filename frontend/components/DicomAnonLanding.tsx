@@ -1,10 +1,9 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
+import { Grid } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Divider from '@mui/material/Divider';
 import { Shield, FileText, Eye, Zap, Lock, Cloud } from 'lucide-react';
 import SignInButton from './SignInButton';
@@ -118,7 +117,7 @@ export default function DicomAnonLanding() {
           </Typography>
           <Grid container spacing={4}>
             {FEATURES.map(({ icon: Icon, title, description }, i) => (
-              <Grid item xs={12} sm={6} md={4} key={i}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
                 <Card elevation={0} sx={{
                   borderRadius: 4,
                   p: 3,
@@ -162,7 +161,7 @@ export default function DicomAnonLanding() {
       <Box component="footer" py={6}>
         <Container maxWidth="lg">
           <Grid container justifyContent="space-between" alignItems="center">
-            <Grid xs={12} item>
+            <Grid size={12}>
               <Box display="flex" alignItems="center" gap={1}>
                 <Shield size={20} color="#660033" />
                 <Typography variant="subtitle1" fontWeight="bold">
@@ -170,7 +169,7 @@ export default function DicomAnonLanding() {
                 </Typography>
               </Box>
             </Grid>
-            <Grid item>
+            <Grid>
               <Box display="flex" gap={3}>
                 {["Privacy Policy", "Terms of Service", "Support"].map(label => (
                   <Typography

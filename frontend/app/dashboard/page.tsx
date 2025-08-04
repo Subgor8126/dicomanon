@@ -2,7 +2,6 @@
 import React from 'react';
 import { Box, Card, CardContent, Typography, Button, Chip, Stack, Skeleton, Grid } from '@mui/material';
 import { useDashboard } from '../../components/dashboard/DashboardContext';
-import UploadIcon from '@mui/icons-material/CloudUpload';
 import WorkIcon from '@mui/icons-material/Work';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 
@@ -12,7 +11,7 @@ export default function DashboardHome() {
   return (
     <Box>
       <Grid container spacing={4}>
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Card sx={{ mb: 3 }}>
             <CardContent>
               <Typography variant="h5" gutterBottom>
@@ -37,7 +36,7 @@ export default function DashboardHome() {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Typography variant="subtitle1" gutterBottom>Jobs Run</Typography>

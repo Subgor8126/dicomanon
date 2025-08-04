@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useAuth } from 'react-oidc-context';
 
 // Example types
@@ -20,7 +20,7 @@ interface Connection {
   region?: string;
 }
 
-interface Job {
+export interface Job {
   id: string;
   status: string;
   created_at: string;
@@ -66,7 +66,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!auth || !auth.user || !auth.user.access_token) {
       setError('Not authenticated');
       setLoading(false);
@@ -107,17 +107,17 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       setUser(userData);
       setConnections(connectionsData);
       setJobs(jobsData);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('DashboardContext error:', err);
-      setError(err.message || 'Unknown error');
+      setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
-  };
+  }, [auth]);
 
   useEffect(() => {
     fetchData();
-  }, [auth.user]);
+  }, [fetchData]);
 
   const value: DashboardContextType = {
     user,

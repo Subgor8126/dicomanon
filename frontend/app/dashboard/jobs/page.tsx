@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Stack, TableSortLabel, TablePagination, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Skeleton, TextField, MenuItem } from '@mui/material';
-import { useDashboard } from '../../../components/dashboard/DashboardContext';
+import { useDashboard, Job } from '../../../components/dashboard/DashboardContext';
 import InfoIcon from '@mui/icons-material/Info';
 
 const statusColors: Record<string, 'primary' | 'info' | 'success' | 'warning' | 'error'> = {
@@ -13,7 +13,7 @@ const statusColors: Record<string, 'primary' | 'info' | 'success' | 'warning' | 
 
 export default function JobsPage() {
   const { jobs, loading } = useDashboard();
-  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [filterStatus, setFilterStatus] = useState('');
   const [filterDate, setFilterDate] = useState('');
   const [orderBy, setOrderBy] = useState<'created_at' | 'status'>('created_at');
