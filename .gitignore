@@ -1,0 +1,17 @@
+# Terraform
+infrastructure/.terraform/
+infrastructure/terraform.tfstate*
+infrastructure/.terraform.lock.hcl
+infrastructure/terraform.tfvars 
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Docker
+.dockerignore
+
+# IDE
+.vscode/
+.idea/

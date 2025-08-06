@@ -1,35 +1,38 @@
-# .github/workflows/deploy.yml
-name: Deploy Medical AI Platform
+name: Deploy Medical AI Application
 
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+
+# Add permissions for OIDC token
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY_BACKEND: medical-ai-backend
-  ECR_REPOSITORY_FRONTEND: medical-ai-frontend
+  ECR_REPOSITORY_BACKEND: medical-ai-backend-repo
+  ECR_REPOSITORY_FRONTEND: medical-ai-frontend-repo
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
+    # ✅ Use IAM role instead of access keys
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
+      uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        role-to-assume: arn:aws:iam::975050380826:role/GitHubActionsRole
+        role-session-name: GitHubActions
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Login to Amazon ECR
       id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
+      uses: aws-actions/amazon-ecr-login@v2
 
     - name: Build and push backend image
       env:
@@ -37,6 +40,7 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       run: |
         cd backend
+        echo "Building backend with tag: $IMAGE_TAG"
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG .
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
@@ -48,12 +52,15 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       run: |
         cd frontend
+        echo "Building frontend with tag: $IMAGE_TAG"
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG .
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG
         docker push $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest
 
-    - name: Deploy to ECS
+    - name: Update ECS services
       run: |
-        aws ecs update-service --cluster medical-ai-cluster --service BackendService --force-new-deployment
-        aws ecs update-service --cluster medical-ai-cluster --service FrontendService --force-new-deployment
+        echo "Updating ECS services..."
+        aws ecs update-service --cluster medical-ai-cluster --service medical-ai-backend-service --force-new-deployment
+        aws ecs update-service --cluster medical-ai-cluster --service medical-ai-frontend-service --force-new-deployment
+        echo "Deployment complete!"
