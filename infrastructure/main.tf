@@ -206,7 +206,6 @@ resource "aws_iam_role" "github_actions" {
   })
 }
 
-# Add this to your main.tf
 resource "aws_iam_role_policy" "github_actions_policy" {
   name = "GitHubActionsPolicy"
   role = aws_iam_role.github_actions.id
