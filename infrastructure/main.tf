@@ -172,7 +172,6 @@ resource "aws_lb_target_group" "frontend" {
   }
 }
 
-# Add this to your main.tf
 resource "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
   
