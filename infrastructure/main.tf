@@ -179,8 +179,6 @@ resource "aws_iam_openid_connect_provider" "github" {
     "sts.amazonaws.com",
   ]
   
-  thumbprint_list = ["0000000000000000000000000000000000000000"]
-  
   tags = {
     Name = "github-actions-oidc"
   }
