@@ -322,7 +322,7 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# ===== COMMENTED OUT: ECS CLUSTER =====
+# ===== COMMENTED OUT:ECS CLUSTER =====
 # resource "aws_ecs_cluster" "main" {
 #   name = "medical-ai-cluster"
 #   
