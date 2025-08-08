@@ -22,22 +22,20 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Debug OIDC Token
+    - name: Decode OIDC Token
       run: |
-        echo "=== GitHub Context ==="
-        echo "Repository: ${{ github.repository }}"
-        echo "Ref: ${{ github.ref }}"
-        echo "Actor: ${{ github.actor }}"
+        echo "=== Getting and Decoding JWT ==="
+        TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+                "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | \
+                python3 -c "import sys, json; print(json.load(sys.stdin)['value'])")
+        
+        echo "Raw JWT Token:"
+        echo "$TOKEN" | head -c 100
+        echo "..."
         echo ""
-        echo "=== OIDC Token Request ==="
-        if [ -n "$ACTIONS_ID_TOKEN_REQUEST_TOKEN" ]; then
-          echo "Token request endpoint available: $ACTIONS_ID_TOKEN_REQUEST_URL"
-          curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-               "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | \
-               python3 -c "import sys, json; print(json.dumps(json.load(sys.stdin), indent=2))" || echo "Failed to decode JWT"
-        else
-          echo "No OIDC token request token available"
-        fi
+        
+        echo "Decoded JWT Claims:"
+        echo "$TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | python3 -c "import sys, json; print(json.dumps(json.load(sys.stdin), indent=2))" || echo "Failed to decode"
 
     # ✅ Use IAM role instead of access keys
     - name: Configure AWS credentials
