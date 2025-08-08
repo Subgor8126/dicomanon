@@ -22,18 +22,22 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Debug GitHub Context
+    - name: Debug OIDC Token
       run: |
+        echo "=== GitHub Context ==="
         echo "Repository: ${{ github.repository }}"
         echo "Ref: ${{ github.ref }}"
         echo "Actor: ${{ github.actor }}"
-        echo "Expected format: repo:Subgor8126/dicomanon:ref:refs/heads/main"
-
-    - name: Debug OIDC Token
-      run: |
-        curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | \
-            python -m json.tool
+        echo ""
+        echo "=== OIDC Token Request ==="
+        if [ -n "$ACTIONS_ID_TOKEN_REQUEST_TOKEN" ]; then
+          echo "Token request endpoint available: $ACTIONS_ID_TOKEN_REQUEST_URL"
+          curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+               "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | \
+               python3 -c "import sys, json; print(json.dumps(json.load(sys.stdin), indent=2))" || echo "Failed to decode JWT"
+        else
+          echo "No OIDC token request token available"
+        fi
 
     # ✅ Use IAM role instead of access keys
     - name: Configure AWS credentials
