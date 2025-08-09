@@ -84,29 +84,28 @@ resource "aws_security_group" "alb" {
   }
 }
 
-# ===== COMMENTED OUT: ECS SECURITY GROUP =====
-# resource "aws_security_group" "ecs" {
-#   name_prefix = "medical-ai-ecs-"
-#   vpc_id      = data.aws_vpc.default.id
-#   
-#   ingress {
-#     from_port       = 0
-#     to_port         = 65535
-#     protocol        = "tcp"
-#     security_groups = [aws_security_group.alb.id]
-#   }
-#   
-#   egress {
-#     from_port   = 0
-#     to_port     = 0
-#     protocol    = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-#   
-#   tags = {
-#     Name = "medical-ai-ecs-sg"
-#   }
-# }
+resource "aws_security_group" "ecs" {
+  name_prefix = "medical-ai-ecs-"
+  vpc_id      = data.aws_vpc.default.id
+  
+  ingress {
+    from_port       = 0
+    to_port         = 65535
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+  
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  tags = {
+    Name = "medical-ai-ecs-sg"
+  }
+}
 
 # ===== APPLICATION LOAD BALANCER =====
 resource "aws_lb" "main" {
@@ -172,6 +171,7 @@ resource "aws_lb_target_group" "frontend" {
   }
 }
 
+# ===== COMMENTED OUT: GITHUB OIDC/ROLE =====
 # resource "aws_iam_openid_connect_provider" "github" {
 #   url = "https://token.actions.githubusercontent.com"
   
@@ -314,89 +314,89 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# ===== COMMENTED OUT:ECS CLUSTER =====
-# resource "aws_ecs_cluster" "main" {
-#   name = "medical-ai-cluster"
-#   
-#   setting {
-#     name  = "containerInsights"
-#     value = "enabled"
-#   }
-#   
-#   tags = {
-#     Name = "medical-ai-cluster"
-#   }
-# }
+# ===== ECS CLUSTER =====
+resource "aws_ecs_cluster" "main" {
+  name = "medical-ai-cluster"
+  
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+  
+  tags = {
+    Name = "medical-ai-cluster"
+  }
+}
 
-# ===== COMMENTED OUT: IAM ROLES FOR ECS =====
-# resource "aws_iam_role" "ecs_execution_role" {
-#   name = "medical-ai-ecs-execution-role"
-# 
-#   assume_role_policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Action = "sts:AssumeRole"
-#         Effect = "Allow"
-#         Principal = {
-#           Service = "ecs-tasks.amazonaws.com"
-#         }
-#       }
-#     ]
-#   })
-# }
-# 
-# resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
-#   role       = aws_iam_role.ecs_execution_role.name
-#   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-# }
-# 
-# resource "aws_iam_role" "ecs_task_role" {
-#   name = "medical-ai-ecs-task-role"
-# 
-#   assume_role_policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Action = "sts:AssumeRole"
-#         Effect = "Allow"
-#         Principal = {
-#           Service = "ecs-tasks.amazonaws.com"
-#         }
-#       }
-#     ]
-#   })
-# }
-# 
-# # Policy for accessing SageMaker (no S3 needed as discussed)
-# resource "aws_iam_role_policy" "ecs_task_policy" {
-#   name = "medical-ai-ecs-task-policy"
-#   role = aws_iam_role.ecs_task_role.id
-# 
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Effect = "Allow"
-#         Action = [
-#           "sagemaker:InvokeEndpoint"
-#         ]
-#         Resource = "*"
-#       }
-#     ]
-#   })
-# }
+# ===== IAM ROLES FOR ECS =====
+resource "aws_iam_role" "ecs_execution_role" {
+  name = "medical-ai-ecs-execution-role"
 
-# ===== COMMENTED OUT: CLOUDWATCH LOGS =====
-# resource "aws_cloudwatch_log_group" "backend" {
-#   name              = "/ecs/medical-ai-backend"
-#   retention_in_days = 7
-# }
-# 
-# resource "aws_cloudwatch_log_group" "frontend" {
-#   name              = "/ecs/medical-ai-frontend"
-#   retention_in_days = 7
-# }
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
+  role       = aws_iam_role.ecs_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_role" "ecs_task_role" {
+  name = "medical-ai-ecs-task-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+# Policy for accessing SageMaker (no S3 needed as discussed)
+resource "aws_iam_role_policy" "ecs_task_policy" {
+  name = "medical-ai-ecs-task-policy"
+  role = aws_iam_role.ecs_task_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "sagemaker:InvokeEndpoint"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# ===== CLOUDWATCH LOGS =====
+resource "aws_cloudwatch_log_group" "backend" {
+  name              = "/ecs/medical-ai-backend"
+  retention_in_days = 7
+}
+
+resource "aws_cloudwatch_log_group" "frontend" {
+  name              = "/ecs/medical-ai-frontend"
+  retention_in_days = 7
+}
 
 # ===== ECR REPOSITORIES =====
 resource "aws_ecr_repository" "backend_repo" {
@@ -423,146 +423,146 @@ resource "aws_ecr_repository" "frontend_repo" {
   }
 }
 
-# ===== COMMENTED OUT: ECS TASK DEFINITIONS =====
-# resource "aws_ecs_task_definition" "backend" {
-#   family                   = "medical-ai-backend-td"
-#   network_mode             = "awsvpc"
-#   requires_compatibilities = ["FARGATE"]
-#   cpu                      = "256"
-#   memory                   = "512"
-#   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
-#   task_role_arn            = aws_iam_role.ecs_task_role.arn
-# 
-#   container_definitions = jsonencode([
-#     {
-#       name  = "backend"
-#       image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/medical-ai-backend-repo:latest"
-#       
-#       portMappings = [
-#         {
-#           containerPort = 8000
-#           protocol      = "tcp"
-#         }
-#       ]
-#       
-#       environment = [
-#         {
-#           name  = "DATABASE_URL"
-#           value = "postgresql://${data.aws_db_instance.existing.master_username}:${var.db_password}@${data.aws_db_instance.existing.address}:${data.aws_db_instance.existing.port}/${data.aws_db_instance.existing.db_name}"
-#         },
-#         {
-#           name  = "AWS_DEFAULT_REGION"
-#           value = var.aws_region
-#         }
-#       ]
-#       
-#       logConfiguration = {
-#         logDriver = "awslogs"
-#         options = {
-#           "awslogs-group"         = aws_cloudwatch_log_group.backend.name
-#           "awslogs-region"        = var.aws_region
-#           "awslogs-stream-prefix" = "ecs"
-#         }
-#       }
-#       
-#       essential = true
-#     }
-#   ])
-# }
-# 
-# resource "aws_ecs_task_definition" "frontend" {
-#   family                   = "medical-ai-frontend-td"
-#   network_mode             = "awsvpc"
-#   requires_compatibilities = ["FARGATE"]
-#   cpu                      = "256"
-#   memory                   = "512"
-#   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
-# 
-#   container_definitions = jsonencode([
-#     {
-#       name  = "frontend"
-#       image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/medical-ai-frontend-repo:latest"
-#       
-#       portMappings = [
-#         {
-#           containerPort = 3000
-#           protocol      = "tcp"
-#         }
-#       ]
-#       
-#       environment = [
-#         {
-#           name  = "NEXT_PUBLIC_API_URL"
-#           value = "https://api.dicomanon.yantrahealth.in"
-#         }
-#       ]
-#       
-#       logConfiguration = {
-#         logDriver = "awslogs"
-#         options = {
-#           "awslogs-group"         = aws_cloudwatch_log_group.frontend.name
-#           "awslogs-region"        = var.aws_region
-#           "awslogs-stream-prefix" = "ecs"
-#         }
-#       }
-#       
-#       essential = true
-#     }
-#   ])
-# }
+# ===== ECS TASK DEFINITIONS =====
+resource "aws_ecs_task_definition" "backend" {
+  family                   = "medical-ai-backend-td"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task_role.arn
 
-# ===== COMMENTED OUT: ECS SERVICES =====
-# resource "aws_ecs_service" "backend" {
-#   name            = "medical-ai-backend-service"
-#   cluster         = aws_ecs_cluster.main.id
-#   task_definition = aws_ecs_task_definition.backend.arn
-#   desired_count   = 1
-#   launch_type     = "FARGATE"
-# 
-#   network_configuration {
-#     subnets          = data.aws_subnets.default.ids
-#     security_groups  = [aws_security_group.ecs.id]
-#     assign_public_ip = true  # Required for default VPC public subnets
-#   }
-# 
-#   load_balancer {
-#     target_group_arn = aws_lb_target_group.backend.arn
-#     container_name   = "backend"
-#     container_port   = 8000
-#   }
-# 
-#   depends_on = [aws_lb_listener.https]
-# 
-#   tags = {
-#     Name = "medical-ai-backend-service"
-#   }
-# }
-# 
-# resource "aws_ecs_service" "frontend" {
-#   name            = "medical-ai-frontend-service"
-#   cluster         = aws_ecs_cluster.main.id
-#   task_definition = aws_ecs_task_definition.frontend.arn
-#   desired_count   = 1
-#   launch_type     = "FARGATE"
-# 
-#   network_configuration {
-#     subnets          = data.aws_subnets.default.ids
-#     security_groups  = [aws_security_group.ecs.id]
-#     assign_public_ip = true  # Required for default VPC public subnets
-#   }
-# 
-#   load_balancer {
-#     target_group_arn = aws_lb_target_group.frontend.arn
-#     container_name   = "frontend"
-#     container_port   = 3000
-#   }
-# 
-#   depends_on = [aws_lb_listener.https]
-# 
-#   tags = {
-#     Name = "medical-ai-frontend-service"
-#   }
-# }
+  container_definitions = jsonencode([
+    {
+      name  = "backend"
+      image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/medical-ai-backend-repo:latest"
+      
+      portMappings = [
+        {
+          containerPort = 8000
+          protocol      = "tcp"
+        }
+      ]
+      
+      environment = [
+        {
+          name  = "DATABASE_URL"
+          value = "postgresql://${data.aws_db_instance.existing.master_username}:${var.db_password}@${data.aws_db_instance.existing.address}:${data.aws_db_instance.existing.port}/${data.aws_db_instance.existing.db_name}"
+        },
+        {
+          name  = "AWS_DEFAULT_REGION"
+          value = var.aws_region
+        }
+      ]
+      
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.backend.name
+          "awslogs-region"        = var.aws_region
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
+      
+      essential = true
+    }
+  ])
+}
+
+resource "aws_ecs_task_definition" "frontend" {
+  family                   = "medical-ai-frontend-td"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
+
+  container_definitions = jsonencode([
+    {
+      name  = "frontend"
+      image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/medical-ai-frontend-repo:latest"
+      
+      portMappings = [
+        {
+          containerPort = 3000
+          protocol      = "tcp"
+        }
+      ]
+      
+      environment = [
+        {
+          name  = "NEXT_PUBLIC_API_URL"
+          value = "https://api.dicomanon.yantrahealth.in"
+        }
+      ]
+      
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.frontend.name
+          "awslogs-region"        = var.aws_region
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
+      
+      essential = true
+    }
+  ])
+}
+
+# ===== ECS SERVICES =====
+resource "aws_ecs_service" "backend" {
+  name            = "medical-ai-backend-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.backend.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = data.aws_subnets.default.ids
+    security_groups  = [aws_security_group.ecs.id]
+    assign_public_ip = true  # Required for default VPC public subnets
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.backend.arn
+    container_name   = "backend"
+    container_port   = 8000
+  }
+
+  depends_on = [aws_lb_listener.https]
+
+  tags = {
+    Name = "medical-ai-backend-service"
+  }
+}
+
+resource "aws_ecs_service" "frontend" {
+  name            = "medical-ai-frontend-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.frontend.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = data.aws_subnets.default.ids
+    security_groups  = [aws_security_group.ecs.id]
+    assign_public_ip = true  # Required for default VPC public subnets
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.frontend.arn
+    container_name   = "frontend"
+    container_port   = 3000
+  }
+
+  depends_on = [aws_lb_listener.https]
+
+  tags = {
+    Name = "medical-ai-frontend-service"
+  }
+}
 
 # ===== ROUTE53 RECORDS =====
 resource "aws_route53_record" "main" {
