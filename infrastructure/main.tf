@@ -172,81 +172,81 @@ resource "aws_lb_target_group" "frontend" {
   }
 }
 
-resource "aws_iam_openid_connect_provider" "github" {
-  url = "https://token.actions.githubusercontent.com"
+# resource "aws_iam_openid_connect_provider" "github" {
+#   url = "https://token.actions.githubusercontent.com"
   
-  client_id_list = [
-    "sts.amazonaws.com",
-  ]
+#   client_id_list = [
+#     "sts.amazonaws.com",
+#   ]
   
-  tags = {
-    Name = "github-actions-oidc"
-  }
-}
+#   tags = {
+#     Name = "github-actions-oidc"
+#   }
+# }
 
-resource "aws_iam_role" "github_actions" {
-  name = "GitHubActionsRole"
+# resource "aws_iam_role" "github_actions" {
+#   name = "GitHubActionsRole"
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          Federated = aws_iam_openid_connect_provider.github.arn
-        }
-        Action = "sts:AssumeRole"
-        Condition = {
-          StringEquals = {
-            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-          }
-        }
-      }
-    ]
-  })
-}
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Effect = "Allow"
+#         Principal = {
+#           Federated = aws_iam_openid_connect_provider.github.arn
+#         }
+#         Action = "sts:AssumeRole"
+#         Condition = {
+#           StringEquals = {
+#             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+#           }
+#         }
+#       }
+#     ]
+#   })
+# }
 
-resource "aws_iam_role_policy" "github_actions_policy" {
-  name = "GitHubActionsPolicy"
-  role = aws_iam_role.github_actions.id
+# resource "aws_iam_role_policy" "github_actions_policy" {
+#   name = "GitHubActionsPolicy"
+#   role = aws_iam_role.github_actions.id
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "ecr:GetAuthorizationToken",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
-          "ecr:PutImage",
-          "ecr:InitiateLayerUpload",
-          "ecr:UploadLayerPart",
-          "ecr:CompleteLayerUpload"
-        ]
-        Resource = [
-          aws_ecr_repository.backend_repo.arn,
-          aws_ecr_repository.frontend_repo.arn,
-          "*"  # ECR GetAuthorizationToken requires wildcard
-        ]
-      }
-      # ===== COMMENTED OUT: ECS PERMISSIONS =====
-      # {
-      #   Effect = "Allow"
-      #   Action = [
-      #     "ecs:UpdateService",
-      #     "ecs:DescribeServices",
-      #     "ecs:DescribeTaskDefinition"
-      #   ]
-      #   Resource = [
-      #     aws_ecs_service.backend.id,
-      #     aws_ecs_service.frontend.id
-      #   ]
-      # }
-    ]
-  })
-}
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Effect = "Allow"
+#         Action = [
+#           "ecr:GetAuthorizationToken",
+#           "ecr:BatchCheckLayerAvailability",
+#           "ecr:GetDownloadUrlForLayer",
+#           "ecr:BatchGetImage",
+#           "ecr:PutImage",
+#           "ecr:InitiateLayerUpload",
+#           "ecr:UploadLayerPart",
+#           "ecr:CompleteLayerUpload"
+#         ]
+#         Resource = [
+#           aws_ecr_repository.backend_repo.arn,
+#           aws_ecr_repository.frontend_repo.arn,
+#           "*"  # ECR GetAuthorizationToken requires wildcard
+#         ]
+#       }
+#       # ===== COMMENTED OUT: ECS PERMISSIONS =====
+#       # {
+#       #   Effect = "Allow"
+#       #   Action = [
+#       #     "ecs:UpdateService",
+#       #     "ecs:DescribeServices",
+#       #     "ecs:DescribeTaskDefinition"
+#       #   ]
+#       #   Resource = [
+#       #     aws_ecs_service.backend.id,
+#       #     aws_ecs_service.frontend.id
+#       #   ]
+#       # }
+#     ]
+#   })
+# }
 
 # ===== LOAD BALANCER LISTENERS =====
 resource "aws_lb_listener" "https" {
