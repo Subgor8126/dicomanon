@@ -97,11 +97,11 @@ WSGI_APPLICATION = "core.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv('DICOM-DE-ID-RDS-TABLE-NAME'),
-        "USER": os.getenv('DICOM-DE-ID-RDS-TABLE-USER'),
-        "PASSWORD": os.getenv('DICOM-DE-ID-RDS-TABLE-PASSWORD'),
-        "HOST": os.getenv('DICOM-DE-ID-RDS-TABLE-HOST'),
-        "PORT": os.getenv('DICOM-DE-ID-RDS-TABLE-PORT'),
+        "NAME": os.getenv('DICOM_DE_ID_RDS_TABLE_NAME'),
+        "USER": os.getenv('DICOM_DE_ID_RDS_TABLE_USER'),
+        "PASSWORD": os.getenv('DICOM_DE_ID_RDS_TABLE_PASSWORD'),
+        "HOST": os.getenv('DICOM_DE_ID_RDS_TABLE_HOST'),
+        "PORT": os.getenv('DICOM_DE_ID_RDS_TABLE_PORT'),
     }
 }
 
