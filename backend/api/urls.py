@@ -1,7 +1,7 @@
 from rest_framework.routers import DefaultRouter
 from django.urls import path, include
 from api.views import UserViewSet, JobViewSet, ConnectionViewSet
-from services.health_check import health_check
+from api.services.health_check import health_check
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
