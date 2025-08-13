@@ -40,7 +40,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     'dicomanon.yantrahealth.in',
-    '172.31.*',
+    '*',
 ]
 
 CORS_ALLOWED_ORIGINS = [
